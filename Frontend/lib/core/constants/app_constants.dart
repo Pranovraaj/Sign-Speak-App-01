@@ -6,7 +6,7 @@ class AppConstants {
   // API Configs
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://10.0.2.2:8080/api/v1', // Use 10.0.2.2 for Android Emulator, or your local IP (e.g. 192.168.x.x) for a real device
+    defaultValue: 'http://127.0.0.1:8080/api/v1', // Use 127.0.0.1 for Web/Desktop, 10.0.2.2 for Android Emulator, or your local IP (e.g. 192.168.x.x) for a real device
   );
 
   static const Duration connectTimeout = Duration(seconds: 15);

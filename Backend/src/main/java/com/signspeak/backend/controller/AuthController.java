@@ -20,9 +20,9 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody AuthRequest request) {
         try {
             User user = authService.register(request);
-            return ResponseEntity.ok("User registered successfully");
+            return ResponseEntity.ok(java.util.Collections.singletonMap("message", "User registered successfully"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(java.util.Collections.singletonMap("error", e.getMessage()));
         }
     }
 

@@ -1,0 +1,13 @@
+{
+  "name": "signspeak-web-tests",
+  "version": "1.0.0",
+  "description": "Selenium Web UI tests for SignSpeak",
+  "main": "web_test.js",
+  "scripts": {
+    "test": "node web_test.js"
+  },
+  "dependencies": {
+    "selenium-webdriver": "^4.19.0",
+    "exceljs": "^4.4.0"
+  }
+}

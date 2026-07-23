@@ -1,0 +1,13 @@
+{
+  "name": "signspeak-mobile-tests",
+  "version": "1.0.0",
+  "description": "Appium Mobile UI tests for SignSpeak Android App",
+  "main": "mobile_test.js",
+  "scripts": {
+    "test": "node mobile_test.js"
+  },
+  "dependencies": {
+    "webdriverio": "^8.36.0",
+    "exceljs": "^4.4.0"
+  }
+}

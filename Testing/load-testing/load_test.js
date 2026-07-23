@@ -47,3 +47,34 @@ export default function () {
     // Pause briefly to simulate a real user waiting before their next action
     sleep(1);
 }
+
+// 3. Custom Output Formatting to match exactly what you requested
+export function handleSummary(data) {
+    const rps = data.metrics.http_reqs ? data.metrics.http_reqs.values.rate.toFixed(2) : 0;
+    const avg = data.metrics.http_req_duration ? data.metrics.http_req_duration.values.avg.toFixed(0) : 0;
+    const min = data.metrics.http_req_duration ? data.metrics.http_req_duration.values.min.toFixed(0) : 0;
+    const max = data.metrics.http_req_duration ? data.metrics.http_req_duration.values.max.toFixed(0) : 0;
+
+    console.log(`\n========================================`);
+    console.log(`Requests per second (RPS)`);
+    console.log(`Example:`);
+    console.log(`${rps} req/sec`);
+    console.log(`Meaning your API is handling about ${rps} requests every second.`);
+    console.log(`========================================`);
+    console.log(`Response Time`);
+    console.log(`Example:`);
+    console.log(`Average: ${avg}ms`);
+    console.log(`Min: ${min}ms`);
+    console.log(`Max: ${max}ms`);
+    console.log(`Meaning:`);
+    console.log(`• Fastest response = ${min}ms`);
+    console.log(`• Average = ${avg}ms`);
+    console.log(`• Slowest = ${max}ms`);
+    console.log(`========================================\n`);
+
+    // We still want k6 to output its default summary to standard out as well, so we do both:
+    const defaultSummary = require('https://jslib.k6.io/k6-summary/0.0.2/index.js').textSummary(data, { indent: ' ', enableColors: true });
+    return {
+        'stdout': defaultSummary,
+    };
+}

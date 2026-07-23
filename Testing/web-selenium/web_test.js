@@ -24,7 +24,17 @@ async function runSeleniumTests() {
     // 2. Setup Selenium WebDriver (Chrome)
     let driver;
     try {
-        driver = await new Builder().forBrowser('chrome').build();
+        const chrome = require('selenium-webdriver/chrome');
+        let options = new chrome.Options();
+        // Run headlessly in GitHub Actions (or any CI)
+        options.addArguments('--headless');
+        options.addArguments('--no-sandbox');
+        options.addArguments('--disable-dev-shm-usage');
+
+        driver = await new Builder()
+            .forBrowser('chrome')
+            .setChromeOptions(options)
+            .build();
         
         // 3. Define Test Cases
         await runTest('TC_01', 'Navigate to App', worksheet, async () => {

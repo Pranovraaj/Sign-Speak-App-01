@@ -1,0 +1,19 @@
+{
+  "name": "sign-speak-e2e-automation",
+  "version": "1.0.0",
+  "description": "Selenium E2E Automation Framework for Sign Speak App",
+  "main": "index.js",
+  "scripts": {
+    "test:e2e": "mocha tests/**/*.test.js --timeout 60000 --reporter mochawesome --reporter-options reportDir=reports/HTML,reportFilename=execution-report,html=true,json=true || true",
+    "posttest:e2e": "node utils/generateSummary.js"
+  },
+  "dependencies": {
+    "chai": "^4.3.10",
+    "exceljs": "^4.4.0",
+    "mocha": "^10.2.0",
+    "mochawesome": "^7.1.3",
+    "selenium-webdriver": "^4.16.1",
+    "winston": "^3.11.0",
+    "dotenv": "^16.3.1"
+  }
+}

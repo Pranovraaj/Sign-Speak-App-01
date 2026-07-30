@@ -25,7 +25,7 @@ class AuthRepository {
         AppConstants.endpointLogin,
         data: {
           'email': email,
-          'password': password,
+          'password': hashPassword(password),
         },
       );
 
@@ -53,7 +53,7 @@ class AuthRepository {
         AppConstants.endpointRegister,
         data: {
           'email': email,
-          'password': password,
+          'password': hashPassword(password),
           'username': username,
           'preferredVoice': preferredVoice,
         },
@@ -108,7 +108,7 @@ class AuthRepository {
           if (username != null) 'username': username,
           if (profilePictureBase64 != null) 'profilePictureBase64': profilePictureBase64,
           if (newEmail != null) 'newEmail': newEmail,
-          if (newPassword != null) 'newPassword': newPassword,
+          if (newPassword != null) 'newPassword': hashPassword(newPassword),
         },
       );
       final user = UserModel.fromJson(response.data);

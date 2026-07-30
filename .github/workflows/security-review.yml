@@ -18,13 +18,15 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
       - name: Run Unit Tests
         working-directory: ./Backend
+        env:
+          SPRING_DATASOURCE_PASSWORD: ${{ secrets.AIVEN_DB_PASSWORD }}
         run: |
           chmod +x ./mvnw
           ./mvnw test

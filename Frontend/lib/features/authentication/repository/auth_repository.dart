@@ -47,13 +47,14 @@ class AuthRepository {
     }
   }
 
-  Future<UserModel> register(String email, String password, {String preferredVoice = 'default'}) async {
+  Future<UserModel> register(String email, String password, String username, {String preferredVoice = 'default'}) async {
     try {
       final response = await _apiClient.post(
         AppConstants.endpointRegister,
         data: {
           'email': email,
           'password': password,
+          'username': username,
           'preferredVoice': preferredVoice,
         },
       );
@@ -67,7 +68,7 @@ class AuthRepository {
       return user;
     } on ApiException catch (e) {
       if (statusCodeIsOffline(e.statusCode)) {
-        return await _mockLocalAuth(email, password, preferredVoice: preferredVoice, isLogin: false);
+        return await _mockLocalAuth(email, password, username: username, preferredVoice: preferredVoice, isLogin: false);
       }
       rethrow;
     } catch (e) {
@@ -98,10 +99,71 @@ class AuthRepository {
     return code == 503 || code == 500 || code == 404 || code == 0;
   }
 
+  Future<UserModel> updateProfile(String email, {String? username, String? profilePictureBase64, String? newEmail, String? newPassword}) async {
+    try {
+      final response = await _apiClient.post(
+        '/users/update-profile',
+        data: {
+          'email': email,
+          if (username != null) 'username': username,
+          if (profilePictureBase64 != null) 'profilePictureBase64': profilePictureBase64,
+          if (newEmail != null) 'newEmail': newEmail,
+          if (newPassword != null) 'newPassword': newPassword,
+        },
+      );
+      final user = UserModel.fromJson(response.data);
+      await cacheUser(user);
+      return user;
+    } on ApiException catch (e) {
+      if (statusCodeIsOffline(e.statusCode)) {
+        // Mock offline update
+        final user = getCachedUser();
+        if (user != null) {
+          final updated = user.copyWith(
+            username: username, 
+            profilePictureBase64: profilePictureBase64,
+            email: newEmail ?? user.email,
+          );
+          await cacheUser(updated);
+          return updated;
+        }
+      }
+      rethrow;
+    }
+  }
+
+  Future<UserModel> updateStats(String email, {int? score, int? streak}) async {
+    try {
+      final response = await _apiClient.post(
+        '/users/update-stats',
+        data: {
+          'email': email,
+          if (score != null) 'score': score,
+          if (streak != null) 'streak': streak,
+        },
+      );
+      final user = UserModel.fromJson(response.data);
+      await cacheUser(user);
+      return user;
+    } on ApiException catch (e) {
+      if (statusCodeIsOffline(e.statusCode)) {
+        // Mock offline update
+        final user = getCachedUser();
+        if (user != null) {
+          final updated = user.copyWith(highScore: score, streak: streak);
+          await cacheUser(updated);
+          return updated;
+        }
+      }
+      rethrow;
+    }
+  }
+
   // Fallback simulator database using SharedPreferences
   Future<UserModel> _mockLocalAuth(
     String email,
     String password, {
+    String? username,
     String? preferredVoice,
     required bool isLogin,
   }) async {
@@ -131,7 +193,10 @@ class AuthRepository {
         'id': 'local_${DateTime.now().millisecondsSinceEpoch}',
         'email': email.toLowerCase().trim(),
         'password': password,
+        'username': username ?? 'user',
         'preferredVoice': preferredVoice ?? 'default',
+        'highScore': 0,
+        'streak': 0,
       };
 
       usersJson.add(newUser);

@@ -20,7 +20,7 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody AuthRequest request) {
         try {
             User user = authService.register(request);
-            return ResponseEntity.ok(java.util.Collections.singletonMap("message", "User registered successfully"));
+            return ResponseEntity.ok(new AuthResponse("dummy-jwt-token", "dummy-refresh-token", user));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(java.util.Collections.singletonMap("error", e.getMessage()));
         }
@@ -29,7 +29,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request) {
         return authService.login(request)
-                .<ResponseEntity<?>>map(user -> ResponseEntity.ok(new AuthResponse("dummy-jwt-token", user.getEmail())))
-                .orElse(ResponseEntity.status(401).body("Invalid credentials"));
+                .<ResponseEntity<?>>map(user -> ResponseEntity.ok(new AuthResponse("dummy-jwt-token", "dummy-refresh-token", user)))
+                .orElse(ResponseEntity.status(401).body(java.util.Collections.singletonMap("error", "Invalid credentials")));
     }
 }

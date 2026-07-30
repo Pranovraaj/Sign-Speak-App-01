@@ -92,7 +92,7 @@ class HistoryRepository {
 
   Future<void> purgeHistory(String userId) async {
     try {
-      await _apiClient.delete(AppConstants.endpointHistoryPurge);
+      await _apiClient.delete('${AppConstants.endpointHistoryPurge}?userId=$userId');
     } on ApiException catch (e) {
       if (!statusCodeIsOffline(e.statusCode)) {
         rethrow;

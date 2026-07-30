@@ -25,6 +25,9 @@ public class AuthService {
         user.setEmail(request.getEmail());
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         user.setPreferredVoice(request.getPreferredVoice() != null ? request.getPreferredVoice() : "default");
+        if (request.getUsername() != null && !request.getUsername().isEmpty()) {
+            user.setUsername(request.getUsername());
+        }
         return userRepository.save(user);
     }
 

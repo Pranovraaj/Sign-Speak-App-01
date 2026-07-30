@@ -7,6 +7,8 @@ class UserModel {
   final String theme;
   final String username;
   final int highScore;
+  final int streak;
+  final String? profilePictureBase64;
 
   UserModel({
     required this.id,
@@ -15,6 +17,8 @@ class UserModel {
     this.theme = 'light',
     this.username = 'user',
     this.highScore = 0,
+    this.streak = 0,
+    this.profilePictureBase64,
   });
 
   UserModel copyWith({
@@ -24,6 +28,8 @@ class UserModel {
     String? theme,
     String? username,
     int? highScore,
+    int? streak,
+    String? profilePictureBase64,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -32,6 +38,8 @@ class UserModel {
       theme: theme ?? this.theme,
       username: username ?? this.username,
       highScore: highScore ?? this.highScore,
+      streak: streak ?? this.streak,
+      profilePictureBase64: profilePictureBase64 ?? this.profilePictureBase64,
     );
   }
 
@@ -43,6 +51,8 @@ class UserModel {
       'theme': theme,
       'username': username,
       'highScore': highScore,
+      'streak': streak,
+      'profilePictureBase64': profilePictureBase64,
     };
   }
 
@@ -54,6 +64,8 @@ class UserModel {
       theme: json['theme']?.toString() ?? 'light',
       username: json['username']?.toString() ?? 'user',
       highScore: json['highScore'] as int? ?? 0,
+      streak: json['streak'] as int? ?? 0,
+      profilePictureBase64: json['profilePictureBase64']?.toString(),
     );
   }
 }

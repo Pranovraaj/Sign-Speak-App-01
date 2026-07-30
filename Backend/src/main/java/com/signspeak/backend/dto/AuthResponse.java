@@ -7,5 +7,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class AuthResponse {
     private String token;
-    private String email;
+    private String refreshToken;
+    private com.signspeak.backend.model.User user;
 }

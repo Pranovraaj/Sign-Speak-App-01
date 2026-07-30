@@ -1,5 +1,6 @@
 // lib/features/dashboard/screens/dashboard_screen.dart
 
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -124,10 +125,17 @@ class DashboardHomeView extends ConsumerWidget {
               ),
               CircleAvatar(
                 backgroundColor: isDark ? AppTheme.darkSlateSecondary : Colors.grey.shade200,
-                child: Icon(
-                  Icons.person_rounded,
-                  color: isDark ? AppTheme.neonCyan : AppTheme.lightAccent,
-                ),
+                backgroundImage: authState.user?.profilePictureBase64 != null
+                    ? MemoryImage(
+                        const Base64Decoder().convert(authState.user!.profilePictureBase64!.split(',').last),
+                      )
+                    : null,
+                child: authState.user?.profilePictureBase64 == null
+                    ? Icon(
+                        Icons.person_rounded,
+                        color: isDark ? AppTheme.neonCyan : AppTheme.lightAccent,
+                      )
+                    : null,
               ),
             ],
           ),
@@ -151,7 +159,7 @@ class DashboardHomeView extends ConsumerWidget {
                 child: _buildStatCard(
                   context,
                   title: 'Daily Streak',
-                  value: '4 Days',
+                  value: '${authState.user?.streak ?? 0} Days',
                   subtitle: 'Continuous learning',
                   icon: Icons.local_fire_department_rounded,
                   color: Colors.orangeAccent,

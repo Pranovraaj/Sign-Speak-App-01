@@ -20,6 +20,15 @@ public class User {
 
     private String preferredVoice;
 
+    private String username;
+
+    private Integer score = 0;
+
+    private Integer streak = 0;
+
+    @Column(columnDefinition = "TEXT")
+    private String profilePictureBase64;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 }

@@ -21,4 +21,7 @@ public class Translation {
 
     @Column(name = "translated_at")
     private LocalDateTime translatedAt = LocalDateTime.now();
+
+    @Column(columnDefinition = "TEXT")
+    private String imageBase64;
 }

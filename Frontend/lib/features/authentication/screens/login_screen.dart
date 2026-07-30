@@ -20,6 +20,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   
   // Controllers
   final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   bool _showPassword = false;
@@ -28,6 +29,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   void dispose() {
     _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -37,6 +39,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final email = _emailController.text;
+    final username = _usernameController.text;
     final password = _passwordController.text;
 
     final authNotifier = ref.read(authProvider.notifier);
@@ -49,7 +52,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
       }
     } else {
-      success = await authNotifier.register(email, password);
+      success = await authNotifier.register(email, password, username);
       if (success && mounted) {
         // Successful registration transitions to Profile Setup
         Navigator.pushReplacementNamed(context, AppRoutes.profileSetup);
@@ -210,6 +213,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             authState.error!,
                             style: const TextStyle(color: Colors.redAccent, fontSize: 13),
                           ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+
+                      if (!_isLoginTab) ...[
+                        // Username Field
+                        TextFormField(
+                          controller: _usernameController,
+                          decoration: const InputDecoration(
+                            labelText: 'Username',
+                            hintText: 'cool_user',
+                            prefixIcon: Icon(Icons.person_rounded, size: 20),
+                          ),
+                          style: TextStyle(color: isDark ? Colors.white : AppTheme.darkSlate),
+                          validator: (val) => val == null || val.trim().isEmpty ? 'Field required' : null,
                         ),
                         const SizedBox(height: 16),
                       ],

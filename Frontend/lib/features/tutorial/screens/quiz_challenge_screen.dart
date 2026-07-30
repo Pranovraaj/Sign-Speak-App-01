@@ -180,6 +180,7 @@ class _QuizChallengeScreenState extends ConsumerState<QuizChallengeScreen> {
 
     // Save/Update local score cached values
     ref.read(authProvider.notifier).updateHighScore(_score);
+    ref.read(authProvider.notifier).incrementStreak();
     _tts.speak('Game over. Your score is $_score.');
   }
 

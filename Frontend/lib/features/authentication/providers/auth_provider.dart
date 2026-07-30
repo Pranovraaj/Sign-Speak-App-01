@@ -70,10 +70,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  Future<bool> register(String email, String password, {String preferredVoice = 'default'}) async {
+  Future<bool> register(String email, String password, String username, {String preferredVoice = 'default'}) async {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
-      final user = await _repository.register(email, password, preferredVoice: preferredVoice);
+      final user = await _repository.register(email, password, username, preferredVoice: preferredVoice);
       state = AuthState(user: user);
       return true;
     } catch (e) {
@@ -94,13 +94,52 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(user: updatedUser);
   }
 
+  Future<void> updateProfileDetails({String? username, String? profilePictureBase64, String? newEmail, String? newPassword}) async {
+    final currentUser = state.user;
+    if (currentUser == null) return;
+    try {
+      final updatedUser = await _repository.updateProfile(
+        currentUser.email,
+        username: username,
+        profilePictureBase64: profilePictureBase64,
+        newEmail: newEmail,
+        newPassword: newPassword,
+      );
+      state = state.copyWith(user: updatedUser);
+    } catch (e) {
+      // Failed to update profile on backend
+      print('Update profile error: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> incrementStreak() async {
+    final currentUser = state.user;
+    if (currentUser == null) return;
+    try {
+      final updatedUser = await _repository.updateStats(
+        currentUser.email,
+        streak: currentUser.streak + 1,
+      );
+      state = state.copyWith(user: updatedUser);
+    } catch (e) {
+      print('Increment streak error: $e');
+    }
+  }
+
   Future<void> updateHighScore(int score) async {
     final currentUser = state.user;
     if (currentUser == null) return;
     if (score > currentUser.highScore) {
-      final updatedUser = currentUser.copyWith(highScore: score);
-      await _repository.cacheUser(updatedUser);
-      state = state.copyWith(user: updatedUser);
+      try {
+        final updatedUser = await _repository.updateStats(
+          currentUser.email,
+          score: score,
+        );
+        state = state.copyWith(user: updatedUser);
+      } catch (e) {
+        print('Update score error: $e');
+      }
     }
   }
 

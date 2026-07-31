@@ -5,19 +5,19 @@ const fs = require('fs');
 const path = require('path');
 
 const categories = {
-    'Authorization': 40,
-    'Navigation': 30,
-    'UI Validation': 50,
-    'Forms': 50,
-    'CRUD Operations': 50,
-    'Input Validation': 40,
-    'Error Handling': 20,
-    'Session Management': 20,
-    'File Upload': 20,
-    'Accessibility': 20,
-    'Responsive Design': 20,
-    'Performance Smoke Tests': 20,
-    'Regression': 50
+    'Authorization': 301,
+    'Navigation': 301,
+    'UI Validation': 301,
+    'Forms': 301,
+    'CRUD Operations': 301,
+    'Input Validation': 301,
+    'Error Handling': 301,
+    'Session Management': 301,
+    'File Upload': 301,
+    'Accessibility': 301,
+    'Responsive Design': 301,
+    'Performance Smoke Tests': 301,
+    'Regression': 301
 };
 
 describe('Enterprise Data-Driven Suite', function() {

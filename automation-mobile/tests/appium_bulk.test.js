@@ -19,16 +19,16 @@ const options = {
 };
 
 const categories = {
-    'Authentication': 40,
-    'Gestures': 30,
-    'Native Device Features': 50,
-    'Offline Sync': 50,
-    'Push Notifications': 40,
-    'Accessibility': 40,
-    'Performance': 30,
-    'Deep Linking': 20,
-    'Responsive Layouts': 50,
-    'Permissions': 50
+    'Authentication': 301,
+    'Gestures': 301,
+    'Native Device Features': 301,
+    'Offline Sync': 301,
+    'Push Notifications': 301,
+    'Accessibility': 301,
+    'Performance': 301,
+    'Deep Linking': 301,
+    'Responsive Layouts': 301,
+    'Permissions': 301
 };
 
 describe('Android Appium Enterprise Data-Driven Suite', function() {

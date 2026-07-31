@@ -58,9 +58,7 @@ jobs:
           disable-animations: true
           script: |
             echo "Emulator started, running tests..."
-            cd automation-mobile
-            npm install
-            npm run test:android
+            cd automation-mobile && npm install && npm run test:android
 
       - name: Upload Mobile Artifacts
         if: always()

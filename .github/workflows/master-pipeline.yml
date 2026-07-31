@@ -1,17 +1,89 @@
-name: Unified Enterprise Testing Suite
+name: Master Enterprise Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
+  actions: write
+
+env:
+  BASE_URL: https://pranovraaj.github.io/Sign-Speak-App-01
 
 jobs:
-  mobile-e2e-tests:
+  build_and_deploy:
+    name: Build and Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.0'
+          channel: 'stable'
+      - name: Install Dependencies
+        working-directory: ./Frontend
+        run: flutter pub get
+      - name: Build Web Application
+        working-directory: ./Frontend
+        run: flutter build web --release --base-href /Sign-Speak-App-01/
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./Frontend/build/web
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  selenium-testing:
+    name: Selenium Web Tests
+    needs: build_and_deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install Selenium Dependencies
+        working-directory: ./automation
+        run: npm install
+      - name: Wait for Deployment
+        run: |
+          echo "Waiting for deployment to propagate..."
+          sleep 30
+          curl -I -f ${{ env.BASE_URL }} || (echo "Deployment not ready" && exit 1)
+      - name: Run Selenium Tests
+        working-directory: ./automation
+        run: npm run test:e2e
+        env:
+          BASE_URL: ${{ env.BASE_URL }}
+      - name: Upload Selenium Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Selenium-Report
+          path: |
+            automation/reports/
+            automation/screenshots/
+            automation/logs/
+          retention-days: 30
+
+  appium-testing:
+    name: Appium Mobile Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -56,49 +128,20 @@ jobs:
           script: |
             echo "Emulator started, running tests..."
             cd automation-mobile && npm install && npm run test:android
-      - name: Upload Mobile Artifacts
+      - name: Upload Appium Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Mobile-Automation-Reports
+          name: Appium-Report
           path: automation-mobile/reports/
           retention-days: 30
 
-  web-and-load-tests:
+  load-testing:
+    name: K6 Load Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-      - name: Start Spring Boot Backend
-        env:
-          SPRING_DATASOURCE_PASSWORD: ${{ secrets.AIVEN_DB_PASSWORD }}
-        run: |
-          cd Backend
-          chmod +x mvnw
-          ./mvnw spring-boot:run &
-          echo "Waiting 45 seconds for backend to start up..."
-          sleep 45
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-      - name: Install Web Testing Dependencies
-        run: npm install
-        working-directory: Testing/web-selenium
-      - name: Run Web Selenium Tests
-        run: npm test
-        working-directory: Testing/web-selenium
-      - name: Upload Web Test Report (Excel)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Selenium-Excel-Report
-          path: Testing/web-selenium/reports/*.xlsx
       - name: Install k6
         run: |
           sudo gpg -k
@@ -107,9 +150,17 @@ jobs:
           sudo apt-get update
           sudo apt-get install k6
       - name: Run k6 Load Test
-        run: k6 run Testing/load-testing/load_test.js
+        run: k6 run --summary-export=load-test-summary.json Testing/load-testing/load_test.js
+      - name: Upload Load Testing Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Load-Testing-Report
+          path: load-test-summary.json
+          retention-days: 30
 
-  security-and-perf:
+  security-testing:
+    name: Security and Backend Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -133,14 +184,10 @@ jobs:
           scan-ref: '.'
           format: 'table'
           exit-code: '0'
-      - name: Setup K6 for Performance Testing
-        uses: grafana/setup-k6-action@v1
-      - name: Run K6 Load Test
-        working-directory: "./Vulnerability Test Results"
-        run: k6 run k6-load-test.js || true
       - name: Upload Security Reports
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Security-Reports
+          name: Security-Report
           path: "Vulnerability Test Results/"
           retention-days: 30

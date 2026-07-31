@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -44,6 +44,8 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
+          target: google_apis
+          arch: arm64-v8a
           script: |
             echo "Emulator started, running tests..."
             cd automation-mobile

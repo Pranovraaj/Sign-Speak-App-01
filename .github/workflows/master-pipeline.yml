@@ -81,6 +81,13 @@ jobs:
             automation/screenshots/
             automation/logs/
           retention-days: 30
+      - name: Upload Test Cases Excel
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Test-Cases-Excel
+          path: automation/reports/Excel/
+          retention-days: 30
 
   appium-testing:
     name: Appium Mobile Tests
@@ -128,6 +135,12 @@ jobs:
           script: |
             echo "Emulator started, running tests..."
             cd automation-mobile && npm install && npm run test:android
+      - name: Generate Appium Excel Report
+        if: always()
+        run: |
+          npm install exceljs
+          mkdir -p automation-mobile/reports/Excel
+          node .github/scripts/generate_excel.js appium automation-mobile/reports/HTML/execution-report.json automation-mobile/reports/Excel/Appium-Test-Report.xlsx || true
       - name: Upload Appium Report
         if: always()
         uses: actions/upload-artifact@v4
@@ -165,12 +178,19 @@ jobs:
           sudo apt-get install k6
       - name: Run k6 Load Test
         run: k6 run --summary-export=load-test-summary.json Testing/load-testing/load_test.js
+      - name: Generate Load Testing Excel Report
+        if: always()
+        run: |
+          npm install exceljs
+          node .github/scripts/generate_excel.js k6 load-test-summary.json load-test-summary.xlsx || true
       - name: Upload Load Testing Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: Load-Testing-Report
-          path: load-test-summary.json
+          path: |
+            load-test-summary.json
+            load-test-summary.xlsx
           retention-days: 30
 
   security-testing:
@@ -191,13 +211,28 @@ jobs:
         run: |
           chmod +x ./mvnw
           ./mvnw test
-      - name: Run Trivy Vulnerability Scanner
+      - name: Run Trivy Vulnerability Scanner (Table)
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
           scan-ref: '.'
           format: 'table'
           exit-code: '0'
+      - name: Run Trivy Vulnerability Scanner (JSON)
+        if: always()
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'json'
+          output: 'trivy-results.json'
+          exit-code: '0'
+      - name: Generate Trivy Excel Report
+        if: always()
+        run: |
+          npm install exceljs
+          mkdir -p "Vulnerability Test Results"
+          node .github/scripts/generate_excel.js trivy trivy-results.json "Vulnerability Test Results/Security-Report.xlsx" || true
       - name: Upload Security Reports
         if: always()
         uses: actions/upload-artifact@v4

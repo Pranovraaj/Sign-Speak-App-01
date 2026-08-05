@@ -2,17 +2,25 @@ const fs = require('fs');
 const ExcelJS = require('exceljs');
 
 async function generateAppiumExcel(inputPath, outputPath) {
-    const data = JSON.parse(fs.readFileSync(inputPath, 'utf8'));
+    let data = { results: [] };
+    if (fs.existsSync(inputPath)) {
+        data = JSON.parse(fs.readFileSync(inputPath, 'utf8'));
+    }
     const workbook = new ExcelJS.Workbook();
-    const sheet = workbook.addWorksheet('Appium Test Results');
-
-    sheet.columns = [
-        { header: 'Test Suite', key: 'suite', width: 30 },
-        { header: 'Test Case', key: 'title', width: 60 },
-        { header: 'Status', key: 'state', width: 15 },
-        { header: 'Duration (ms)', key: 'duration', width: 15 },
-        { header: 'Error', key: 'error', width: 50 }
-    ];
+    let sheet;
+    if (fs.existsSync(outputPath)) {
+        await workbook.xlsx.readFile(outputPath);
+        sheet = workbook.getWorksheet('Appium Test Results') || workbook.addWorksheet('Appium Test Results');
+    } else {
+        sheet = workbook.addWorksheet('Appium Test Results');
+        sheet.columns = [
+            { header: 'Test Suite', key: 'suite', width: 30 },
+            { header: 'Test Case', key: 'title', width: 60 },
+            { header: 'Status', key: 'state', width: 15 },
+            { header: 'Duration (ms)', key: 'duration', width: 15 },
+            { header: 'Error', key: 'error', width: 50 }
+        ];
+    }
 
     data.results.forEach(suite => {
         suite.suites.forEach(subSuite => {
@@ -33,14 +41,22 @@ async function generateAppiumExcel(inputPath, outputPath) {
 }
 
 async function generateK6Excel(inputPath, outputPath) {
-    const data = JSON.parse(fs.readFileSync(inputPath, 'utf8'));
+    let data = { metrics: {} };
+    if (fs.existsSync(inputPath)) {
+        data = JSON.parse(fs.readFileSync(inputPath, 'utf8'));
+    }
     const workbook = new ExcelJS.Workbook();
-    const sheet = workbook.addWorksheet('Load Test Results');
-
-    sheet.columns = [
-        { header: 'Metric', key: 'metric', width: 40 },
-        { header: 'Value', key: 'value', width: 40 }
-    ];
+    let sheet;
+    if (fs.existsSync(outputPath)) {
+        await workbook.xlsx.readFile(outputPath);
+        sheet = workbook.getWorksheet('Load Test Results') || workbook.addWorksheet('Load Test Results');
+    } else {
+        sheet = workbook.addWorksheet('Load Test Results');
+        sheet.columns = [
+            { header: 'Metric', key: 'metric', width: 40 },
+            { header: 'Value', key: 'value', width: 40 }
+        ];
+    }
 
     for (const [key, val] of Object.entries(data.metrics)) {
         let valueStr = '';
@@ -57,18 +73,26 @@ async function generateK6Excel(inputPath, outputPath) {
 }
 
 async function generateTrivyExcel(inputPath, outputPath) {
-    const data = JSON.parse(fs.readFileSync(inputPath, 'utf8'));
+    let data = {};
+    if (fs.existsSync(inputPath)) {
+        data = JSON.parse(fs.readFileSync(inputPath, 'utf8'));
+    }
     const workbook = new ExcelJS.Workbook();
-    const sheet = workbook.addWorksheet('Vulnerability Results');
-
-    sheet.columns = [
-        { header: 'Target', key: 'target', width: 40 },
-        { header: 'VulnerabilityID', key: 'vulnId', width: 20 },
-        { header: 'Severity', key: 'severity', width: 15 },
-        { header: 'Title', key: 'title', width: 60 },
-        { header: 'Installed Version', key: 'installedVersion', width: 20 },
-        { header: 'Fixed Version', key: 'fixedVersion', width: 20 }
-    ];
+    let sheet;
+    if (fs.existsSync(outputPath)) {
+        await workbook.xlsx.readFile(outputPath);
+        sheet = workbook.getWorksheet('Vulnerability Results') || workbook.addWorksheet('Vulnerability Results');
+    } else {
+        sheet = workbook.addWorksheet('Vulnerability Results');
+        sheet.columns = [
+            { header: 'Target', key: 'target', width: 40 },
+            { header: 'VulnerabilityID', key: 'vulnId', width: 20 },
+            { header: 'Severity', key: 'severity', width: 15 },
+            { header: 'Title', key: 'title', width: 60 },
+            { header: 'Installed Version', key: 'installedVersion', width: 20 },
+            { header: 'Fixed Version', key: 'fixedVersion', width: 20 }
+        ];
+    }
 
     if (data.Results) {
         data.Results.forEach(result => {
